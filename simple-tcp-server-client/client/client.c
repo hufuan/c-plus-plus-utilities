@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 	printf("Target Host name : %s\n", he->h_name);
-    //printf("Target IP Address : %s\n", inet_ntoa(*((struct in_addr *)he->h_addr)));
+    printf("Target IP Address : %s\n", inet_ntoa(*((struct in_addr *)he->h_addr)));
 	printf("Target Host name : %s\n", he->h_name);
 	struct sockaddr_in remote;
 	memset(&remote, 0, sizeof(remote));
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 		}
 		else if (sz == 0)
 		{
-			printf("read done...");
+			printf("\nquit...\n");
 			break;
 		}
 		else

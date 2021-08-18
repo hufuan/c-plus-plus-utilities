@@ -6,8 +6,21 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h> 
+#include<signal.h>
 const int MYPORT = 50000;
-char *ip = "127.0.0.1";
+int listen_sock = -1;
+int current_connection_sock = -1;
+volatile int sub_thread_quit = 0; 
+void handler(int sig)
+{
+	printf("Received INT sig: %d\n",sig);
+	sub_thread_quit = 1;
+	if ( listen_sock > 0) {
+		close(listen_sock);
+		listen_sock = -1;
+	}
+	exit(1);
+}
  
 void *pthread_run(void *arg)
 {
@@ -22,12 +35,12 @@ void *pthread_run(void *arg)
 	 	ssize_t sz = read(fd, buf, buff_size - 1);
 	 	if (sz < 0)
 	 	{
-	 		perror("read");
+	 		perror("\nread");
 	 		break;
 	 	}
 	 	else if (0 == sz)
 	 	{
-	 		printf("client quit...\n");
+	 		printf("\nclient quit...\n");
 	 		break;
 	 	}
 	 	else
@@ -38,6 +51,7 @@ void *pthread_run(void *arg)
 			write(fd, buf, strlen(buf));
 		}
 	}
+	close(fd);
 	return 0;
 }
  
@@ -52,8 +66,11 @@ int main(int argc, char* argv[])
     {
         port = MYPORT;
     }
+
+	signal(SIGINT,handler);
+	
 	//1.创建套接字
-	int listen_sock = socket(AF_INET, SOCK_STREAM, 0);
+	listen_sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (listen_sock < 0)
 	{
 		perror("socket");
@@ -80,14 +97,17 @@ int main(int argc, char* argv[])
 	}
 	
  	printf("Server listening on port: %d ......\n", (int)port);
-	while (1)
+	while (!sub_thread_quit)
 	{	
 		//4.获取收到的套接字
 		struct sockaddr_in peer;	//远端
 		socklen_t len = sizeof(peer);	
 		int fd = accept(listen_sock, (struct sockaddr *)&peer, &len);
-		
-		printf("new connect: %s:%d\n", inet_ntoa(peer.sin_addr), peer.sin_port);
+		if (fd < 0){
+			perror("accept");
+			continue;
+		}
+		printf("new connect: %s:%d, fd: %d \n", inet_ntoa(peer.sin_addr), peer.sin_port, fd);
  
 		pthread_t id;
 		pthread_create(&id, (const pthread_attr_t *)NULL, pthread_run, (void *)&fd); //创建线程来服务客户
