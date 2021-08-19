@@ -40,15 +40,16 @@ void *pthread_run(void *arg)
 	 	}
 	 	else if (0 == sz)
 	 	{
-	 		printf("\nclient quit...\n");
+	 		printf("client quit...\n");
 	 		break;
 	 	}
 	 	else
 	 	{
 	 		buf[sz - 1] = '\0';
-			printf("\n[%04d] server > %s", msgId++, buf);
+			printf("[%04d] server received: %s\n", msgId++, buf);
 			fflush(stdout);
 			write(fd, buf, strlen(buf));
+			printf("       echo back ...\n");
 		}
 	}
 	close(fd);

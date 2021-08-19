@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
     }
 	printf("Target Host name : %s\n", he->h_name);
     printf("Target IP Address : %s\n", inet_ntoa(*((struct in_addr *)he->h_addr)));
-	printf("Target Host name : %s\n", he->h_name);
 	struct sockaddr_in remote;
 	memset(&remote, 0, sizeof(remote));
 	remote.sin_family = AF_INET;
@@ -69,6 +68,15 @@ int main(int argc, char* argv[])
 		if (_s > 0)
 		{
 			buf[_s] = '\0';
+			if (buf[0] == 0x0A) 
+			{
+				continue;
+			}
+		}
+		else
+		{
+			perror("read");
+			break;
 		}
 		write(fd, buf, strlen(buf));
 		ssize_t sz = read(fd, buf, sizeof(buf) - 1);
@@ -85,7 +93,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			buf[sz] = '\0';
-			printf("	 echo <<  %s\n", buf);
+			printf("       echo received:  %s\n", buf);
 		}
 	}
  
