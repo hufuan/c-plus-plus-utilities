@@ -7,10 +7,30 @@
 #include <netinet/in.h>
 #include <arpa/inet.h> 
 #include<signal.h>
+#include <time.h>
+#include <sys/time.h>
+#include <iostream>  
 const int MYPORT = 50000;
 int listen_sock = -1;
 int current_connection_sock = -1;
 volatile int sub_thread_quit = 0; 
+
+std::string getCurrentTime(void)
+{
+    time_t time_seconds = time(0);                        
+    struct tm currentTime;
+    localtime_r(&time_seconds, &currentTime);
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    char timeStr[20];
+    sprintf(timeStr, "%04i/%02i/%02i %02i:%02i %02i\"",
+            currentTime.tm_year + 1900, currentTime.tm_mon + 1,
+            currentTime.tm_mday, currentTime.tm_hour, currentTime.tm_min,
+            currentTime.tm_sec);
+    return std::string(timeStr); 
+}
+
 void handler(int sig)
 {
 	printf("Received INT sig: %d\n",sig);
@@ -26,7 +46,7 @@ void *pthread_run(void *arg)
 {
 	int fd = *(int*)arg;
 	const int buff_size = 8 * 1024;
- 	char* buf = malloc(buff_size);
+ 	char* buf = (char* )malloc(buff_size);
  	memset(buf, '\0', buff_size);
  	//printf("handing fd:%d \n", fd);
  	int msgId = 0;
@@ -49,7 +69,7 @@ void *pthread_run(void *arg)
 			printf("[%04d] server received: %s\n", msgId++, buf);
 			fflush(stdout);
 			write(fd, buf, strlen(buf));
-			printf("       echo back ...\n");
+			printf("       [%s] echo back ...\n", getCurrentTime().c_str());
 		}
 	}
 	close(fd);

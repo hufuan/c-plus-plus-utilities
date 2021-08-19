@@ -1,12 +1,32 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <netdb.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
+#include <sys/time.h>
+#include <iostream>  
 const int MYPORT = 50000;
 
-char *TARGET_HOST = "127.0.0.1";
+const char *TARGET_HOST = "127.0.0.1";
+
+std::string getCurrentTime(void)
+{
+    time_t time_seconds = time(0);                        
+    struct tm currentTime;
+    localtime_r(&time_seconds, &currentTime);
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    char timeStr[20];
+    sprintf(timeStr, "%04i/%02i/%02i %02i:%02i %02i\"",
+            currentTime.tm_year + 1900, currentTime.tm_mon + 1,
+            currentTime.tm_mday, currentTime.tm_hour, currentTime.tm_min,
+            currentTime.tm_sec);
+    return std::string(timeStr); 
+}
  
 int main(int argc, char* argv[])
 {
@@ -62,7 +82,7 @@ int main(int argc, char* argv[])
 	int msgId = 0;
 	while (1)
 	{
-		printf("[%04d] Client > ", msgId++);
+		printf("(%04d) Client > ", msgId++);
 		fflush(stdout);
 		ssize_t _s = read(0, buf, sizeof(buf) - 1);
 		if (_s > 0)
@@ -93,7 +113,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			buf[sz] = '\0';
-			printf("       echo received:  %s\n", buf);
+			printf("       [%s] received echo message: %s\n", getCurrentTime().c_str(), buf);
 		}
 	}
  
