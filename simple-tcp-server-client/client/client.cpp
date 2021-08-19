@@ -8,6 +8,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <iostream>  
+#include <unistd.h>
 const int MYPORT = 50000;
 
 const char *TARGET_HOST = "127.0.0.1";

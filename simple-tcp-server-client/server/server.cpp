@@ -9,7 +9,8 @@
 #include<signal.h>
 #include <time.h>
 #include <sys/time.h>
-#include <iostream>  
+#include <iostream>
+#include <unistd.h>
 const int MYPORT = 50000;
 int listen_sock = -1;
 int current_connection_sock = -1;
