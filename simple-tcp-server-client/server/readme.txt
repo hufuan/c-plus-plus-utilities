@@ -1,11 +1,11 @@
 #build image
 cd /root/Github/c-plus-plus-utilities/simple-tcp-server-client/server;
-docker build -f Dockerfile -t my-tcp-server:v1 .
+docker build -f Dockerfile -t my-tcp-server:amd .
+docker build -f Dockerfile -t my-tcp-server:arm .
 
 # start container
-docker run -d -p 50000:50000  --name my-tcp-server-inst  my-tcp-server:v1
-docker run -d -p 50000:50000  --name my-tcp-server-inst  c0c9246df3a7
-docker run    -p 50000:50000  --name my-tcp-server-inst  c0c9246df3a7
+docker run -d -p 50000:50000  --name my-tcp-server-inst  my-tcp-server:amd
+docker run -d -p 50000:50000  --name my-tcp-server-inst  my-tcp-server:arm
 
 # enter containter and check
 docker exec -it my-tcp-server-inst /bin/bash
@@ -18,12 +18,17 @@ docker ps -a|grep my-tcp-server-inst|awk ' { print $1} '|xargs -i  docker rm {}
 docker images|grep my-tcp-server|awk '{ print $1":"$2 } '|xargs -i  docker rmi {}
 
 ## registry docker server
-docker tag my-tcp-server:v1 jp-cloud-1:5000/my-tcp-server:v1
-docker push jp-cloud-1:5000/my-tcp-server:v1
+docker tag my-tcp-server:arm jp-cloud-1:5000/my-tcp-server:amd
+docker push jp-cloud-1:5000/my-tcp-server:amd
+
+docker tag my-tcp-server:arm jp-cloud-1:5000/my-tcp-server:arm
+docker push jp-cloud-1:5000/my-tcp-server:arm
 
 ## other docker server, mage pull
-docker pull jp-cloud-1:5000/my-tcp-server:v1 
+docker pull jp-cloud-1:5000/my-tcp-server:amd
+docker pull jp-cloud-1:5000/my-tcp-server:arm
 
 #### debug:
 cd /root/Github/c-plus-plus-utilities/simple-tcp-server-client/client;
 ./tcp-client 
+/usr/local/myapps/tcp-server 
